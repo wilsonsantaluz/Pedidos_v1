@@ -63,7 +63,7 @@ type
   private
     FID: String;
     procedure GravarQueryLog(const prefixo: String);
-    procedure DefinirConexao();
+
   protected
     iniTimer, fimTimer: TDateTime;
     procedure StartCountTimer;
@@ -71,6 +71,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor destroy; override;
+    procedure DefinirConexao();
     procedure Open;
     procedure ExecSQL;
 
@@ -93,8 +94,11 @@ Type
   public
     class Function ExecuteEscript(Script, StringConnection: string): Boolean;
     class Function ReturmSingleValue(Script, StringConnection: string): variant;
-    class procedure SetConexao(ocon: TConnectionClass);
+
   End;
+
+var
+  globalConnection: TConnectionClass;
 
 implementation
 
@@ -119,13 +123,24 @@ end;
 { ----------------------------------------------------------------------------- }
 procedure TFDQueryPlus.DefinirConexao;
 begin
-  Connection := TConnectionClass.Create(Nil);
-  Connection.Params.Clear;
-  Connection.Params.add('Database=' + _CT_DB_NAME);
-  Connection.Params.add('Server=' + _CT_DB_HOST);
-  Connection.Params.add('User_Name=' + _CT_DB_USER);
-  Connection.Params.add('Password=' + _CT_DB_PASSWORD);
-  Connection.Params.add('DriverID=' + _CT_DRIVER)
+  if not Assigned(globalConnection) then
+  begin
+    globalConnection := TConnectionClass.Create(Nil);
+    Connection:=globalConnection;
+    Connection.Params.Clear;
+    Connection.Params.add('Database=' + _CT_DB_NAME);
+    Connection.Params.add('Server=' + _CT_DB_HOST);
+    Connection.Params.add('User_Name=' + _CT_DB_USER);
+    Connection.Params.add('Password=' + _CT_DB_PASSWORD);
+    Connection.Params.add('DriverID=' + _CT_DRIVER);
+    Connection.TxOptions.DisconnectAction := xdRollback;
+    Connection.TxOptions.AutoCommit := false;
+    Connection.TxOptions.Isolation := xiReadCommitted;
+    Connection.ResourceOptions.AutoReconnect := true;
+
+  end;
+  Connection := globalConnection;
+
 end;
 
 procedure TFDQueryPlus.DefinirParametro(Nome: String; Tipo: TFieldType;
@@ -154,16 +169,11 @@ end;
 destructor TFDQueryPlus.destroy;
 begin
   inherited;
-  if assigned(self.Connection) then
-  begin
-    self.Close;
-    self.Connection.Close;
-  end;
 end;
 
 procedure TFDQueryPlus.ExecSQL;
 begin
-  if not assigned(Connection) then
+  if not Assigned(Connection) then
     DefinirConexao();
   try
     StartCountTimer;
@@ -179,7 +189,7 @@ var
   cds: TClientDataSet;
 begin
   try
-    if not assigned(Connection) then
+    if not Assigned(Connection) then
       DefinirConexao();
     if not self.Active then
       self.Open;
@@ -224,7 +234,7 @@ end;
 procedure TFDQueryPlus.Open;
 
 begin
-  if not assigned(Connection) then
+  if not Assigned(Connection) then
   begin
     DefinirConexao;
   end;
@@ -292,14 +302,11 @@ begin
 
 end;
 
-class procedure TDaoUtil.SetConexao(ocon: TConnectionClass);
-begin
-  ocon.Params.Clear;
-  ocon.Params.add('Database=' + _CT_DB_NAME);
-  ocon.Params.add('User_Name=' + _CT_DB_USER);
-  ocon.Params.add('Server=' + _CT_DB_HOST);
-  ocon.Params.add('Password=' + _CT_DB_PASSWORD);
-  ocon.Params.add('DriverID=' + _CT_DRIVER)
-end;
+initialization
+
+finalization
+
+if assigned(globalConnection) then
+  FreeAndNil(globalConnection);
 
 end.

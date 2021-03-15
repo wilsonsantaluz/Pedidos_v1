@@ -44,7 +44,7 @@ begin
           + e.Message);
     end;
   finally
-    qry.Connection.Close;
+    qry.close;
     FreeAndNil(qry);
   end;
 end;
@@ -77,7 +77,7 @@ begin
           e.Message);
     end;
   finally
-    qry.Connection.Close;
+    qry.close;
     FreeAndNil(qry);
   end;
 end;
@@ -118,7 +118,7 @@ begin
 
     end;
   finally
-    qry.Connection.Close;
+    qry.close;
     FreeAndNil(qry);
     FreeAndNil(cds);
     FreeAndNil(prv);
@@ -129,14 +129,12 @@ end;
 class procedure TdaoProduto.setProduto(var oclass: TProdutoClass);
 var
   qry: TFDQueryPlus;
-
   isUpdate: Boolean;
-  cn: TConnectionClass;
 begin
-  cn := TConnectionClass.Create(Nil);
-  TDaoUtil.SetConexao(cn);
+
   qry := TFDQueryPlus.Create(Nil);
-  cn.StartTransaction;
+  qry.DefinirConexao();
+  qry.IniciarTransacao;
   try
     try
       isUpdate := false;
@@ -184,20 +182,20 @@ begin
         qry.Open;
         oclass.Codigo := qry.Fields[0].AsInteger;
       end;
-      cn.Commit;
+      qry.ComitarTransacao;
     except
       on e: exception do
       begin
-        cn.Rollback;
+        qry.DesfazerTransacao();
         raise exception.Create
           ('[DAO Produto]E 171 Falha ao inserir/atualizar Produto -> ' +
           e.Message);
       end;
     end;
   finally
-    qry.Connection.Close;
+    qry.close;
     FreeAndNil(qry);
-    FreeAndNil(cn);
+
   end;
 end;
 

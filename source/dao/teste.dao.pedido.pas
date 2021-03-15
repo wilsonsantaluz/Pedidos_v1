@@ -47,7 +47,7 @@ begin
     end;
 
   finally
-    qry.Connection.Close;
+    qry.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -167,7 +167,7 @@ begin
     end;
 
   finally
-    qry.Connection.Connected := false;
+    qry.Close;
     FreeAndNil(qry);
     FreeAndNil(cds);
     FreeAndNil(prv);
@@ -182,7 +182,7 @@ var
   oiten: TpedidoItem;
   i: integer;
   isUpdate: Boolean;
-  cn: TConnectionClass;
+
   procedure excluirItens();
   begin
     qry.SQL.Clear;
@@ -217,14 +217,10 @@ var
   end;
 
 begin
-  cn := TConnectionClass.Create(Nil);
-  TDaoUtil.SetConexao(cn);
+
   qry := TFDQueryPlus.Create(Nil);
-  cn.TxOptions.DisconnectAction := xdRollback;
-  cn.TxOptions.AutoCommit := false;
-  cn.TxOptions.Isolation := xiReadCommitted;
-  cn.ResourceOptions.AutoReconnect := true;
-  cn.StartTransaction;
+  qry.DefinirConexao();
+  qry.IniciarTransacao;
   try
     try
       isUpdate := false;
@@ -295,20 +291,20 @@ begin
         qry.ExecSQL;
       end;
 
-      cn.Commit;
+      qry.ComitarTransacao;
     except
       on e: exception do
       begin
-        cn.Rollback;
+        qry.DesfazerTransacao;
         raise exception.Create
           ('[DAO PEDIDO]E 171 Falha ao inserir/atualizar pedido -> ' +
           e.Message);
       end;
     end;
   finally
-    cn.Connected := false;
+    qry.close;
     FreeAndNil(qry);
-    FreeAndNil(cn);
+
   end;
 end;
 
