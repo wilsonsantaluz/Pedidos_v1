@@ -41,7 +41,9 @@ uses
   FireDAC.Phys.MySQLDef,
   FireDAC.Stan.Intf,
   FireDAC.Phys,
-  FireDAC.Phys.MySQL;
+  FireDAC.Phys.MySQL, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
+  FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.VCLUI.Wait, FireDAC.Comp.Client;
 
 type
   Tfpedido = class(TForm, IView)
@@ -93,6 +95,9 @@ type
     Label13: TLabel;
     Label14: TLabel;
     imglogo: TImage;
+    FDConnection1: TFDConnection;
+    Label15: TLabel;
+    Label16: TLabel;
     procedure FormShow(Sender: TObject);
     procedure edtNumeroPedidoKeyPress(Sender: TObject; var Key: Char);
     procedure edtNumeroPedidoExit(Sender: TObject);
@@ -203,9 +208,14 @@ procedure Tfpedido.btgravarClick(Sender: TObject);
 begin
   if FpedidoAlterado then
   begin
-    SerializarPedido();
-    controller.GravarPedido;
-    desserializarPedido();
+    try
+      TSpeedButton(Sender).Enabled := false;
+      SerializarPedido();
+      controller.GravarPedido;
+      desserializarPedido();
+    finally
+      TSpeedButton(Sender).Enabled := true;
+    end;
     FpedidoAlterado := false;
     MessageBox(self.Handle, PChar('Pedido foi gravado com sucesso'), 'Sucesso',
       MB_OK + MB_DEFBUTTON3 + MB_ICONINFORMATION);
@@ -280,6 +290,7 @@ begin
     FmodalPedidos.showmodal;
     if FmodalPedidos.pedidoClass.codigo > 0 then
     begin
+      edtNumeroPedido.Text:=inttostr(FmodalPedidos.pedidoClass.codigo);
       controller.SetPedido(FmodalPedidos.pedidoClass.codigo);
       SetarTela();
 
@@ -289,6 +300,7 @@ begin
   end;
 
 end;
+
 { ----------------------------------------------------------------------------- }
 procedure Tfpedido.btPesquisarProdutoClick(Sender: TObject);
 begin
@@ -552,12 +564,13 @@ begin
   end;
 
 end;
+
 { ----------------------------------------------------------------------------- }
 procedure Tfpedido.HandleBuscapedido(value: Boolean);
 begin
   edtNumeroPedido.Enabled := value;
   btPesquisarPedido.Enabled := value;
-  edtNumeroPedido.Text := '';
+
 end;
 
 procedure Tfpedido.HandleDadosPedido(value: Boolean);

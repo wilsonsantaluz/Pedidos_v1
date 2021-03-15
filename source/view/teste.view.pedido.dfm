@@ -1012,6 +1012,32 @@ object fpedido: Tfpedido
       Transparent = True
       ExplicitHeight = 46
     end
+    object Label15: TLabel
+      Left = 467
+      Top = 1
+      Width = 306
+      Height = 14
+      Caption = ' * Utilizando banco free para teste,torna se muito lento '
+      Font.Charset = ANSI_CHARSET
+      Font.Color = 8404992
+      Font.Height = -12
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label16: TLabel
+      Left = 482
+      Top = 21
+      Width = 223
+      Height = 14
+      Caption = 'criar banco atravez dos scripts para teste'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = 8404992
+      Font.Height = -12
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
   end
   object dtsPedido: TDataSource
     Left = 272
@@ -1020,5 +1046,10 @@ object fpedido: Tfpedido
   object olink: TFDPhysMySQLDriverLink
     Left = 216
     Top = 296
+  end
+  object FDConnection1: TFDConnection
+    TxOptions.DisconnectAction = xdRollback
+    Left = 392
+    Top = 264
   end
 end

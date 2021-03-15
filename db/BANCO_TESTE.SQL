@@ -1,9 +1,9 @@
 /* -------------------------------------------------------------- */
 /* Wilson santaluz -ME                                 12/03/2021 */
 /* -------------------------------------------------------------- */
-/* Host     : localhost                                           */
+/* Host     : remotemysql.com                                     */
 /* Port     : 3306                                                */
-/* Database : teste_db                                            */
+/* Database : F5XCdPndlD                                          */
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -13,11 +13,11 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
-CREATE DATABASE `teste_db`
+CREATE DATABASE `F5XCdPndlD`
     CHARACTER SET 'utf8mb4'
     COLLATE 'utf8mb4_general_ci';
 
-USE `teste_db`;
+USE `F5XCdPndlD`;
 
 /* Structure for the `clientes` table : */
 

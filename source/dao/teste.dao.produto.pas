@@ -43,8 +43,8 @@ begin
         raise exception.Create('[DAO Produto]E 40 Falha ao excluir Produto -> '
           + e.Message);
     end;
-
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -77,6 +77,7 @@ begin
           e.Message);
     end;
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -116,13 +117,12 @@ begin
           e.Message);
 
     end;
-
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
     FreeAndNil(cds);
     FreeAndNil(prv);
   end;
-
 end;
 
 { -------------------------------------------------------------------------- }
@@ -195,6 +195,7 @@ begin
       end;
     end;
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
     FreeAndNil(cn);
   end;

@@ -10,6 +10,7 @@ uses
   teste.classes.pedido,
   Datasnap.Provider,
   Datasnap.DBClient,
+  FireDAC.Stan.Option,
   teste.dao.objects;
 
 type
@@ -46,6 +47,7 @@ begin
     end;
 
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -116,6 +118,7 @@ begin
           e.Message);
     end;
   finally
+    qry.Connection.Connected := false;
     FreeAndNil(qry);
   end;
 
@@ -164,6 +167,7 @@ begin
     end;
 
   finally
+    qry.Connection.Connected := false;
     FreeAndNil(qry);
     FreeAndNil(cds);
     FreeAndNil(prv);
@@ -184,9 +188,9 @@ var
     qry.SQL.Clear;
     qry.SQL.Add('DELETE                         ');
     qry.SQL.Add('FROM                            ');
-    qry.SQL.Add('    pedido_item i               ');
+    qry.SQL.Add('    pedido_item               ');
     qry.SQL.Add('WHERE                 ');
-    qry.SQL.Add('  i.pedido_numero  = ' + inttostr(oclass.Codigo));
+    qry.SQL.Add('  pedido_numero  = ' + inttostr(oclass.Codigo));
     qry.ExecSQL;
 
   end;
@@ -216,7 +220,10 @@ begin
   cn := TConnectionClass.Create(Nil);
   TDaoUtil.SetConexao(cn);
   qry := TFDQueryPlus.Create(Nil);
-
+  cn.TxOptions.DisconnectAction := xdRollback;
+  cn.TxOptions.AutoCommit := false;
+  cn.TxOptions.Isolation := xiReadCommitted;
+  cn.ResourceOptions.AutoReconnect := true;
   cn.StartTransaction;
   try
     try
@@ -224,7 +231,7 @@ begin
       if oclass.Codigo > 0 then
       begin
         qry.SQL.Clear;
-        qry.SQL.Add('SELECT numero FROM PEDIDOS WHERE numero = ' +
+        qry.SQL.Add('SELECT numero FROM pedidos WHERE numero = ' +
           inttostr(oclass.Codigo));
         qry.Open;
         if qry.RecordCount > 0 then
@@ -299,7 +306,7 @@ begin
       end;
     end;
   finally
-
+    cn.Connected := false;
     FreeAndNil(qry);
     FreeAndNil(cn);
   end;

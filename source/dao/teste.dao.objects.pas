@@ -5,6 +5,7 @@ interface
 uses
   teste.lib.constantes,
   SysUtils,
+  Inifiles,
   Classes,
   DB,
   DBClient,
@@ -69,7 +70,7 @@ type
     procedure StopCountTimer;
   public
     constructor Create(AOwner: TComponent); override;
-
+    destructor destroy; override;
     procedure Open;
     procedure ExecSQL;
 
@@ -121,6 +122,7 @@ begin
   Connection := TConnectionClass.Create(Nil);
   Connection.Params.Clear;
   Connection.Params.add('Database=' + _CT_DB_NAME);
+  Connection.Params.add('Server=' + _CT_DB_HOST);
   Connection.Params.add('User_Name=' + _CT_DB_USER);
   Connection.Params.add('Password=' + _CT_DB_PASSWORD);
   Connection.Params.add('DriverID=' + _CT_DRIVER)
@@ -147,6 +149,16 @@ end;
 procedure TFDQueryPlus.DesfazerTransacao;
 begin
   Connection.Rollback;
+end;
+
+destructor TFDQueryPlus.destroy;
+begin
+  inherited;
+  if assigned(self.Connection) then
+  begin
+    self.Close;
+    self.Connection.Close;
+  end;
 end;
 
 procedure TFDQueryPlus.ExecSQL;
@@ -285,6 +297,7 @@ begin
   ocon.Params.Clear;
   ocon.Params.add('Database=' + _CT_DB_NAME);
   ocon.Params.add('User_Name=' + _CT_DB_USER);
+  ocon.Params.add('Server=' + _CT_DB_HOST);
   ocon.Params.add('Password=' + _CT_DB_PASSWORD);
   ocon.Params.add('DriverID=' + _CT_DRIVER)
 end;

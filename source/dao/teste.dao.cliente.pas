@@ -47,6 +47,7 @@ begin
     end;
 
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -81,6 +82,7 @@ begin
           e.Message);
     end;
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
   end;
 end;
@@ -124,6 +126,7 @@ begin
     end;
 
   finally
+    qry.Connection.Close;
     FreeAndNil(qry);
     FreeAndNil(cds);
     FreeAndNil(prv);
@@ -204,7 +207,7 @@ begin
       end;
     end;
   finally
-
+    qry.Connection.Close;
     FreeAndNil(qry);
     FreeAndNil(cn);
   end;
